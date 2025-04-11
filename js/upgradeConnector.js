@@ -1,7 +1,6 @@
 /**
  * Upgrade Connector
  * This file bridges the gap between your existing upgrade UI and the game mechanics
- * Add this as a new file in your project
  */
 
 /**
@@ -86,62 +85,60 @@ function purchaseUpgrade(upgradeId) {
     return true;
 }
 
-/**
- * Modify the existing attachUpgradeEventListeners function to use purchaseUpgrade
- */
-function patchUpgradeSystem() {
-    // Override the existing attachUpgradeEventListeners function
-    window.originalAttachUpgradeEventListeners = window.attachUpgradeEventListeners;
+// Direct attachment function - will be called from patchUpgradeSystem
+function directAttachListeners() {
+    // Find all upgrade buttons in the DOM and attach handlers
+    const allButtons = document.querySelectorAll('[id^="buy-"]');
     
-    window.attachUpgradeEventListeners = function() {
-        // Get all upgrade buttons
-        const upgradeButtons = document.querySelectorAll('[id^="buy-"]');
+    allButtons.forEach(button => {
+        // Clear existing listeners
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
         
-        // Add click handlers
-        upgradeButtons.forEach(button => {
-            // Extract the upgrade ID from the button ID
-            const upgradeId = button.id.replace('buy-', '');
-            
-            // Remove existing event listeners
-            const newButton = button.cloneNode(true);
-            button.parentNode.replaceChild(newButton, button);
-            
-            // Add new event listener using purchaseUpgrade
-            newButton.addEventListener('click', () => {
-                const success = purchaseUpgrade(upgradeId);
-                if (success) {
-                    updateUI();
-                }
-            });
+        // Add our own listener
+        const upgradeId = newButton.id.replace('buy-', '');
+        newButton.addEventListener('click', () => {
+            console.log("Upgrade button clicked:", upgradeId);
+            const success = purchaseUpgrade(upgradeId);
+            if (success) {
+                updateUI();
+            }
         });
-    };
-    
-    // Patch the advanced upgrade listeners too
-    window.originalAttachAdvancedUpgradeEventListeners = window.attachAdvancedUpgradeEventListeners;
-    
-    window.attachAdvancedUpgradeEventListeners = function() {
-        // Get all advanced upgrade buttons
-        const advancedUpgradeButtons = document.querySelectorAll('[id^="buy-"]');
-        
-        // Add click handlers
-        advancedUpgradeButtons.forEach(button => {
-            // Extract the upgrade ID from the button ID
-            const upgradeId = button.id.replace('buy-', '');
-            
-            // Remove existing event listeners
-            const newButton = button.cloneNode(true);
-            button.parentNode.replaceChild(newButton, button);
-            
-            // Add new event listener using purchaseUpgrade
-            newButton.addEventListener('click', () => {
-                const success = purchaseUpgrade(upgradeId);
-                if (success) {
-                    updateUI();
-                }
-            });
-        });
-    };
+    });
 }
 
-// Call the patch function when the script loads
-document.addEventListener('DOMContentLoaded', patchUpgradeSystem);
+// Function to patch the existing upgrade system
+function patchUpgradeSystem() {
+    // Override the original event attachment functions
+    if (window.attachUpgradeEventListeners) {
+        window.originalAttachUpgradeEventListeners = window.attachUpgradeEventListeners;
+        window.attachUpgradeEventListeners = directAttachListeners;
+    }
+    
+    if (window.attachAdvancedUpgradeEventListeners) {
+        window.originalAttachAdvancedUpgradeEventListeners = window.attachAdvancedUpgradeEventListeners;
+        window.attachAdvancedUpgradeEventListeners = directAttachListeners;
+    }
+    
+    // Run immediately and also set up to run after UI updates
+    const originalUpdateUI = window.updateUI;
+    if (originalUpdateUI) {
+        window.updateUI = function() {
+            originalUpdateUI();
+            // After UI update, reattach listeners
+            setTimeout(directAttachListeners, 100);
+        };
+    }
+    
+    // Run immediately
+    setTimeout(directAttachListeners, 100);
+}
+
+// Call the patch function when document loads
+window.addEventListener('DOMContentLoaded', patchUpgradeSystem);
+// Also call when window loads as a fallback
+window.addEventListener('load', patchUpgradeSystem);
+// And call it right now in case page is already loaded
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    patchUpgradeSystem();
+}

@@ -40,20 +40,5 @@ function gameLoop(timestamp) {
     requestAnimationFrame(gameLoop);
 }
 
-/**
- * Load all required scripts in the correct order
- */
-function loadScripts() {
-    // Core scripts are already loaded
-    
-    // Load the upgrade connector script
-    const connectorScript = document.createElement('script');
-    connectorScript.src = 'js/upgradeConnector.js';
-    document.head.appendChild(connectorScript);
-    
-    // Initialize the game after all scripts are loaded
-    window.addEventListener('load', initGame);
-}
-
-// Start loading scripts
-loadScripts();
+// Start the game when page is loaded
+window.addEventListener('load', initGame);

@@ -1,0 +1,311 @@
+/* Base styles and reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f7f9fc;
+    color: #333;
+    line-height: 1.6;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+    font-family: 'Montserrat', sans-serif;
+    color: #2c3e50;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg, #3498db, #2c3e50);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+h2 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    color: #3498db;
+}
+
+h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #7f8c8d;
+}
+
+/* Layout */
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.resources-panel {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.production-panel, .tabs-panel {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Resources */
+.resource {
+    text-align: center;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.resource:hover {
+    transform: translateY(-2px);
+}
+
+.resource-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.price-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Production area */
+.product-display {
+    width: 100%;
+    height: 200px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-display svg {
+    max-width: 150px;
+    max-height: 150px;
+    transition: transform 0.3s;
+}
+
+.product-display svg:hover {
+    transform: scale(1.05);
+}
+
+.auto-info {
+    margin-top: 20px;
+    text-align: center;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    font-size: 1.1rem;
+}
+
+/* Buttons */
+button {
+    background-color: #ecf0f1;
+    border: none;
+    color: #7f8c8d;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+button:hover {
+    background-color: #dfe6e9;
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+.primary-button {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    font-size: 1.2rem;
+    padding: 12px 24px;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
+}
+
+.primary-button:hover {
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    box-shadow: 0 6px 8px rgba(52, 152, 219, 0.3);
+}
+
+button:disabled {
+    background: #ecf0f1;
+    color: #bdc3c7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.tab-button {
+    background: transparent;
+    padding: 10px 20px;
+    border-radius: 5px 5px 0 0;
+    border-bottom: 3px solid transparent;
+    color: #7f8c8d;
+}
+
+.tab-button:hover {
+    background-color: #f8f9fa;
+}
+
+.tab-button.active {
+    color: #3498db;
+    border-bottom: 3px solid #3498db;
+    background-color: transparent;
+}
+
+.tab-content {
+    display: none;
+    padding: 15px 0;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Upgrades and research items */
+.upgrade-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    transition: all 0.3s;
+    border-left: 4px solid #3498db;
+}
+
+.upgrade-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.upgrade-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.upgrade-title {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.upgrade-description {
+    color: #7f8c8d;
+    margin-bottom: 10px;
+}
+
+.upgrade-cost {
+    font-weight: 600;
+    color: #e74c3c;
+    margin-bottom: 10px;
+}
+
+.upgrade-status {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+/* Progress bars */
+.progress-container {
+    width: 100%;
+    height: 12px;
+    background-color: #ecf0f1;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    border-radius: 6px;
+    transition: width 0.5s;
+}
+
+/* Message log */
+#messages {
+    height: 100px;
+    overflow-y: auto;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+#messages div {
+    margin-bottom: 5px;
+    padding: 5px;
+    border-left: 3px solid #3498db;
+    animation: fadeIn 0.5s;
+}
+
+/* Player levels */
+#player-level {
+    display: inline-block;
+    padding: 5px 15px;
+    background-color: #3498db;
+    color: white;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    main {
+        grid-template-columns: 1fr;
+    }
+}

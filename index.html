@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thread Empire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Thread Empire</h1>
+        <div id="player-level">Level: <span id="level">Startup</span></div>
+    </header>
+
+    <main>
+        <section class="resources-panel">
+            <div class="resource">
+                <h3>Inventory</h3>
+                <div class="resource-value"><span id="product-count">0</span> <span id="product-name">Socks</span></div>
+            </div>
+            <div class="resource">
+                <h3>Cash</h3>
+                <div class="resource-value">$<span id="money">0.00</span></div>
+            </div>
+            <div class="resource">
+                <h3>Price</h3>
+                <div class="price-controls">
+                    <button id="decrease-price">-</button>
+                    <div class="resource-value">$<span id="price">9.99</span></div>
+                    <button id="increase-price">+</button>
+                </div>
+            </div>
+            <div class="resource">
+                <h3>Demand</h3>
+                <div class="resource-value"><span id="demand">100</span>%</div>
+            </div>
+        </section>
+
+        <section class="production-panel">
+            <div class="product-display" id="product-display">
+                <!-- SVG will be inserted here by JS -->
+            </div>
+            
+            <button id="make-product" class="primary-button">MAKE SOCKS</button>
+            
+            <div id="auto-info" class="auto-info hidden">
+                <div>Production: <span id="auto-rate">0</span>/sec</div>
+                <div id="auto-sell-info" class="hidden">Auto-selling active</div>
+            </div>
+        </section>
+
+        <section class="tabs-panel">
+            <div class="tabs">
+                <button class="tab-button active" data-tab="upgrades">UPGRADES</button>
+                <button class="tab-button" data-tab="research">RESEARCH</button>
+                <button class="tab-button" id="advanced-tab" data-tab="advanced" style="display: none;">ADVANCED</button>
+            </div>
+
+            <div class="tab-content active" id="upgrades">
+                <div id="upgrades-list">
+                    <!-- Upgrades will be dynamically added here -->
+                </div>
+            </div>
+
+            <div class="tab-content" id="research">
+                <div id="research-list">
+                    <!-- Research items will be dynamically added here -->
+                </div>
+            </div>
+
+            <div class="tab-content" id="advanced">
+                <div id="advanced-list">
+                    <!-- Advanced upgrades will be dynamically added here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div id="messages"></div>
+    </footer>
+
+    <!-- Load JavaScript files -->
+    <script src="js/game-state.js"></script>
+    <script src="js/upgrades.js"></script>
+    <script src="js/research.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

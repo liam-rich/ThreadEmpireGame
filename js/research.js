@@ -9,7 +9,7 @@ const researchDefinitions = {
         id: 'marketTrends',
         title: 'Market Trend Analysis',
         description: 'Research customer preferences and market trends to unlock advanced strategies.',
-        cost: 500,
+        cost: 800, // Increased from 500
         getCost: () => researchDefinitions.marketTrends.cost * Math.pow(2, game.productTier - 1),
         progressId: 'marketTrends'
     },
@@ -17,8 +17,8 @@ const researchDefinitions = {
     qualityMaterials: {
         id: 'qualityMaterials',
         title: 'Quality Materials',
-        description: 'Research premium materials to double production efficiency.',
-        cost: 1200,
+        description: 'Research premium materials to improve production efficiency by 50%.', // Changed from double
+        cost: 2000, // Increased from 1200
         getCost: () => researchDefinitions.qualityMaterials.cost * Math.pow(2, game.productTier - 1),
         progressId: 'qualityMaterials'
     },
@@ -27,7 +27,7 @@ const researchDefinitions = {
         id: 'automation',
         title: 'Automation Systems',
         description: 'Research advanced manufacturing automation to unlock factory production.',
-        cost: 3000,
+        cost: 5000, // Increased from 3000
         getCost: () => researchDefinitions.automation.cost * Math.pow(2, game.productTier - 1),
         progressId: 'automation'
     }

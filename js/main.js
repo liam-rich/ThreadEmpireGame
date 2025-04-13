@@ -7,6 +7,8 @@
  * Initialize the game
  */
 function initGame() {
+    console.log("Initializing Thread Empire Game...");
+    
     // Set up initial product
     updateProductVisuals();
     
@@ -33,8 +35,10 @@ function gameLoop(timestamp) {
     // Update game state
     updateGameState();
     
-    // Update UI
-    updateUI();
+    // Update UI (only update every 10 frames for performance)
+    if (timestamp % 10 === 0) {
+        updateUI();
+    }
     
     // Continue the loop
     requestAnimationFrame(gameLoop);

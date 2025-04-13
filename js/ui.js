@@ -203,130 +203,152 @@ function updateAdvancedUI() {
  * Attach event listeners to upgrade buttons
  */
 function attachUpgradeEventListeners() {
-    // Producer upgrade
-    const buyProducerBtn = document.getElementById('buy-producer');
-    if (buyProducerBtn) {
-        buyProducerBtn.addEventListener('click', () => {
-            const cost = upgradeDefinitions.producer.getCost();
-            if (game.money >= cost) {
-                game.money -= cost;
-                game.autoProducers++;
-                calculateAutoRate();
-                updateUI();
-                addMessage(`Purchased a new workshop!`);
-            }
-        });
-    }
+    // Find all upgrade buttons in the upgrades tab
+    const upgradeButtons = document.querySelectorAll('#upgrades-list [id^="buy-"]');
     
-    // Auto-sell upgrade
-    const buyAutoSellBtn = document.getElementById('buy-autoSell');
-    if (buyAutoSellBtn) {
-        buyAutoSellBtn.addEventListener('click', () => {
-            const cost = upgradeDefinitions.autoSell.getCost();
-            if (game.money >= cost && !game.hasAutoSell) {
-                game.money -= cost;
-                game.hasAutoSell = true;
-                elements.autoSellInfo.classList.remove('hidden');
-                updateUI();
-                addMessage(`Activated auto-selling! Products will now sell automatically.`);
+    // Add click handlers to each button
+    upgradeButtons.forEach(button => {
+        // Remove existing event listeners by cloning
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+        
+        // Add new event listener with direct purchase logic
+        newButton.addEventListener('click', function() {
+            // Extract the upgrade ID from the button ID
+            const upgradeId = this.id.replace('buy-', '');
+            console.log("Button clicked:", upgradeId);
+            
+            // Get the upgrade definition
+            const upgrade = upgradeDefinitions[upgradeId];
+            if (!upgrade) {
+                console.error("Unknown upgrade:", upgradeId);
+                return;
             }
-        });
-    }
-    
-    // Efficiency upgrade
-    const buyEfficiencyBtn = document.getElementById('buy-efficiency');
-    if (buyEfficiencyBtn) {
-        buyEfficiencyBtn.addEventListener('click', () => {
-            const cost = upgradeDefinitions.efficiency.getCost();
-            if (game.money >= cost) {
-                game.money -= cost;
-                game.efficiencyLevel++;
-                calculateAutoRate();
-                updateUI();
-                addMessage(`Increased production efficiency to level ${game.efficiencyLevel}!`);
+            
+            // Calculate cost
+            const cost = upgrade.getCost ? upgrade.getCost() : upgrade.cost;
+            
+            // Check if player can afford
+            if (game.money < cost) {
+                console.log("Cannot afford upgrade:", upgradeId);
+                return;
             }
-        });
-    }
-    
-    // Marketing upgrade
-    const buyMarketingBtn = document.getElementById('buy-marketing');
-    if (buyMarketingBtn) {
-        buyMarketingBtn.addEventListener('click', () => {
-            const cost = upgradeDefinitions.marketing.getCost();
-            if (game.money >= cost) {
-                game.money -= cost;
-                game.marketingLevel++;
-                updateUI();
-                addMessage(`Increased marketing to level ${game.marketingLevel}!`);
+            
+            // Apply the upgrade based on its ID
+            switch (upgradeId) {
+                case 'producer':
+                    game.money -= cost;
+                    game.autoProducers++;
+                    calculateAutoRate();
+                    addMessage(`Purchased a new workshop!`);
+                    break;
+                    
+                case 'autoSell':
+                    game.money -= cost;
+                    game.hasAutoSell = true;
+                    game.unlocks.autoSell = true;
+                    addMessage(`Activated auto-selling! Products will now sell automatically.`);
+                    break;
+                    
+                case 'efficiency':
+                    game.money -= cost;
+                    game.efficiencyLevel++;
+                    calculateAutoRate();
+                    addMessage(`Increased production efficiency to level ${game.efficiencyLevel}!`);
+                    break;
+                    
+                case 'marketing':
+                    game.money -= cost;
+                    game.marketingLevel++;
+                    addMessage(`Increased marketing to level ${game.marketingLevel}!`);
+                    break;
+                    
+                case 'productTier':
+                    game.money -= cost;
+                    const oldTier = game.productTier;
+                    upgradeProductTier();
+                    updateProductVisuals();
+                    addMessage(`Upgraded from ${productTiers[oldTier-1].name} to ${productTiers[game.productTier-1].name}!`);
+                    break;
+                    
+                default:
+                    console.error("Unknown upgrade:", upgradeId);
+                    return;
             }
+            
+            // Update UI
+            updateUI();
         });
-    }
-    
-    // Product tier upgrade
-    const buyTierBtn = document.getElementById('buy-productTier');
-    if (buyTierBtn) {
-        buyTierBtn.addEventListener('click', () => {
-            const cost = upgradeDefinitions.productTier.getCost();
-            if (game.money >= cost && game.productTier < productTiers.length) {
-                game.money -= cost;
-                const oldTier = game.productTier;
-                upgradeProductTier();
-                updateProductVisuals();
-                updateUI();
-                addMessage(`Upgraded from ${productTiers[oldTier-1].name} to ${productTiers[game.productTier-1].name}!`);
-            }
-        });
-    }
+    });
 }
 
 /**
  * Attach event listeners to advanced upgrade buttons
  */
 function attachAdvancedUpgradeEventListeners() {
-    // Factory upgrade
-    const buyFactoryBtn = document.getElementById('buy-factory');
-    if (buyFactoryBtn) {
-        buyFactoryBtn.addEventListener('click', () => {
-            const cost = upgradeDefinitions.factory.getCost();
-            if (game.money >= cost) {
-                game.money -= cost;
-                game.factoryCount++;
-                calculateAutoRate();
-                updateUI();
-                addMessage(`Built a new factory!`);
-            }
-        });
-    }
+    // Find all upgrade buttons in the advanced tab
+    const upgradeButtons = document.querySelectorAll('#advanced-list [id^="buy-"]');
     
-    // Market expansion upgrade
-    const buyExpansionBtn = document.getElementById('buy-marketExpansion');
-    if (buyExpansionBtn) {
-        buyExpansionBtn.addEventListener('click', () => {
-            const cost = upgradeDefinitions.marketExpansion.getCost();
-            if (game.money >= cost) {
-                game.money -= cost;
-                game.marketCount++;
-                calculateAutoRate();
-                updateUI();
-                addMessage(`Expanded to a new market! Now in ${game.marketCount} markets.`);
+    // Add click handlers to each button
+    upgradeButtons.forEach(button => {
+        // Remove existing event listeners by cloning
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+        
+        // Add new event listener with direct purchase logic
+        newButton.addEventListener('click', function() {
+            // Extract the upgrade ID from the button ID
+            const upgradeId = this.id.replace('buy-', '');
+            console.log("Advanced button clicked:", upgradeId);
+            
+            // Get the upgrade definition
+            const upgrade = upgradeDefinitions[upgradeId];
+            if (!upgrade) {
+                console.error("Unknown upgrade:", upgradeId);
+                return;
             }
-        });
-    }
-    
-    // Product line expansion upgrade
-    const buyProductLineBtn = document.getElementById('buy-productLine');
-    if (buyProductLineBtn) {
-        buyProductLineBtn.addEventListener('click', () => {
-            const cost = upgradeDefinitions.productLine.getCost();
-            if (game.money >= cost) {
-                game.money -= cost;
-                game.productLines++;
-                calculateAutoRate();
-                updateUI();
-                addMessage(`Added a new product line! Now producing ${game.productLines} types of products.`);
+            
+            // Calculate cost
+            const cost = upgrade.getCost ? upgrade.getCost() : upgrade.cost;
+            
+            // Check if player can afford
+            if (game.money < cost) {
+                console.log("Cannot afford upgrade:", upgradeId);
+                return;
             }
+            
+            // Apply the upgrade based on its ID
+            switch (upgradeId) {
+                case 'factory':
+                    game.money -= cost;
+                    game.factoryCount++;
+                    calculateAutoRate();
+                    addMessage(`Built a new factory!`);
+                    break;
+                    
+                case 'marketExpansion':
+                    game.money -= cost;
+                    game.marketCount++;
+                    calculateAutoRate();
+                    addMessage(`Expanded to a new market! Now in ${game.marketCount} markets.`);
+                    break;
+                    
+                case 'productLine':
+                    game.money -= cost;
+                    game.productLines++;
+                    calculateAutoRate();
+                    addMessage(`Added a new product line! Now producing ${game.productLines} types of products.`);
+                    break;
+                    
+                default:
+                    console.error("Unknown upgrade:", upgradeId);
+                    return;
+            }
+            
+            // Update UI
+            updateUI();
         });
-    }
+    });
 }
 
 /**

@@ -6,6 +6,30 @@
     <title>Thread Empire</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Custom styles for the direct purchase buttons */
+        .direct-purchase-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-top: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+        .direct-purchase-btn:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+        .direct-purchase-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -81,12 +105,297 @@
         <div id="messages"></div>
     </footer>
 
-<!-- JS filesm -->
+<!-- JS files -->
 <script src="js/game-state.js"></script>
 <script src="js/upgrades.js"></script>
 <script src="js/research.js"></script>
-<script src="js/upgradeConnector.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>
+
+<!-- Direct upgrade implementation -->
+<script>
+(function() {
+    console.log("DIRECT UPGRADE HANDLER LOADED");
+    
+    // Function to directly apply an upgrade
+    function directUpgrade(upgradeId) {
+        console.log("Direct upgrade:", upgradeId);
+        const upgrade = upgradeDefinitions[upgradeId];
+        
+        if (!upgrade) {
+            console.error("Unknown upgrade:", upgradeId);
+            return;
+        }
+        
+        // Calculate cost
+        const cost = upgrade.getCost ? upgrade.getCost() : upgrade.cost;
+        
+        if (game.money < cost) {
+            console.log("Cannot afford upgrade. Cost:", cost, "Money:", game.money);
+            return;
+        }
+        
+        // Apply upgrade effects
+        switch (upgradeId) {
+            case 'producer':
+                game.money -= cost;
+                game.autoProducers++;
+                calculateAutoRate();
+                console.log("Added producer. New count:", game.autoProducers);
+                break;
+                
+            case 'autoSell':
+                game.money -= cost;
+                game.hasAutoSell = true;
+                game.unlocks.autoSell = true;
+                console.log("Activated auto-sell");
+                break;
+                
+            case 'efficiency':
+                game.money -= cost;
+                game.efficiencyLevel++;
+                calculateAutoRate();
+                console.log("Increased efficiency. New level:", game.efficiencyLevel);
+                break;
+                
+            case 'marketing':
+                game.money -= cost;
+                game.marketingLevel++;
+                console.log("Increased marketing. New level:", game.marketingLevel);
+                break;
+                
+            case 'factory':
+                game.money -= cost;
+                game.factoryCount++;
+                calculateAutoRate();
+                console.log("Added factory. New count:", game.factoryCount);
+                break;
+                
+            case 'marketExpansion':
+                game.money -= cost;
+                game.marketCount++;
+                calculateAutoRate();
+                console.log("Added market. New count:", game.marketCount);
+                break;
+                
+            case 'productLine':
+                game.money -= cost;
+                game.productLines++;
+                calculateAutoRate();
+                console.log("Added product line. New count:", game.productLines);
+                break;
+                
+            case 'productTier':
+                game.money -= cost;
+                const oldTier = game.productTier;
+                upgradeProductTier();
+                updateProductVisuals();
+                console.log("Upgraded product tier. New tier:", game.productTier);
+                break;
+        }
+        
+        // Add message to log
+        addMessage(`Purchased ${upgrade.title}!`);
+        
+        // Update UI
+        updateUI();
+    }
+    
+    // Global click handler for all buttons
+    document.addEventListener('click', function(event) {
+        if (event.target && event.target.tagName === 'BUTTON') {
+            // Handle upgrade buttons
+            if (event.target.id && event.target.id.startsWith('buy-')) {
+                event.preventDefault();
+                const upgradeId = event.target.id.replace('buy-', '');
+                console.log("Upgrade button clicked:", upgradeId);
+                directUpgrade(upgradeId);
+            }
+            
+            // Handle direct purchase buttons
+            if (event.target.classList.contains('direct-purchase-btn')) {
+                event.preventDefault();
+                const upgradeId = event.target.getAttribute('data-upgrade');
+                console.log("Direct purchase button clicked:", upgradeId);
+                directUpgrade(upgradeId);
+            }
+            
+            // Handle research buttons
+            if (event.target.id && event.target.id.match(/^research-.*-btn$/)) {
+                // Let the existing research handler handle this
+                console.log("Research button clicked:", event.target.id);
+            }
+        }
+    }, true); // Use capturing phase to catch all events
+    
+    // Add direct purchase buttons to the upgrade items
+    function enhanceUpgradeItems() {
+        // Find all upgrade items
+        document.querySelectorAll('.upgrade-item').forEach(item => {
+            // Skip if already enhanced
+            if (item.querySelector('.direct-purchase-btn')) return;
+            
+            // Get the upgrade ID
+            const itemId = item.id;
+            if (!itemId || !itemId.startsWith('upgrade-')) return;
+            
+            const upgradeId = itemId.replace('upgrade-', '');
+            
+            // Get the upgrade info
+            const upgrade = upgradeDefinitions[upgradeId];
+            if (!upgrade) return;
+            
+            // Calculate cost
+            const cost = upgrade.getCost ? upgrade.getCost() : upgrade.cost;
+            
+            // Create the direct purchase button
+            const directBtn = document.createElement('button');
+            directBtn.className = 'direct-purchase-btn';
+            directBtn.setAttribute('data-upgrade', upgradeId);
+            directBtn.textContent = '⚡ BUY';
+            directBtn.disabled = game.money < cost;
+            
+            // Add button to the item
+            const actionDiv = item.querySelector('.upgrade-action');
+            if (actionDiv) {
+                actionDiv.appendChild(directBtn);
+            }
+        });
+    }
+    
+    // Override updateUI to enhance upgrade items after UI updates
+    const originalUpdateUI = window.updateUI;
+    window.updateUI = function() {
+        // Call original function
+        originalUpdateUI.apply(this, arguments);
+        
+        // Enhance upgrade items
+        setTimeout(enhanceUpgradeItems, 100);
+    };
+    
+    // Debug controls
+    const debugDiv = document.createElement('div');
+    debugDiv.style.position = 'fixed';
+    debugDiv.style.bottom = '10px';
+    debugDiv.style.right = '10px';
+    debugDiv.style.zIndex = '9999';
+    debugDiv.style.background = 'rgba(255, 193, 7, 0.8)';
+    debugDiv.style.padding = '10px';
+    debugDiv.style.borderRadius = '5px';
+    debugDiv.style.fontFamily = 'monospace';
+    
+    // Debug: add money
+    const addMoneyBtn = document.createElement('button');
+    addMoneyBtn.textContent = "+$50";
+    addMoneyBtn.onclick = function() {
+        game.money += 50;
+        updateUI();
+        console.log("Added $50. New money:", game.money);
+    };
+    
+    // Debug: add workshop
+    const addWorkshopBtn = document.createElement('button');
+    addWorkshopBtn.textContent = "+Workshop";
+    addWorkshopBtn.style.marginLeft = '10px';
+    addWorkshopBtn.onclick = function() {
+        game.autoProducers++;
+        calculateAutoRate();
+        updateUI();
+        console.log("Added workshop. Count:", game.autoProducers);
+    };
+    
+    // Debug: log state
+    const logStateBtn = document.createElement('button');
+    logStateBtn.textContent = "Log State";
+    logStateBtn.style.marginLeft = '10px';
+    logStateBtn.onclick = function() {
+        console.log("Game state:", JSON.parse(JSON.stringify(game)));
+    };
+    
+    debugDiv.appendChild(addMoneyBtn);
+    debugDiv.appendChild(addWorkshopBtn);
+    debugDiv.appendChild(logStateBtn);
+    document.body.appendChild(debugDiv);
+    
+    // Initialize direct purchase buttons
+    setTimeout(enhanceUpgradeItems, 500);
+    
+    console.log("Direct upgrade handler ready!");
+})();
+</script>
+// Add this to the end of your index.html file, right before the closing </body> tag
+
+<script>
+// Simple, direct global click handler for all upgrade buttons
+document.addEventListener('click', function(event) {
+    // Check if the clicked element is an upgrade button
+    if (event.target && event.target.id && event.target.id.startsWith('buy-')) {
+        // Get the upgrade ID
+        const upgradeId = event.target.id.replace('buy-', '');
+        console.log("Clicked on upgrade:", upgradeId);
+        
+        // Find the upgrade definition
+        const upgrade = upgradeDefinitions[upgradeId];
+        if (!upgrade) return;
+        
+        // Get the cost
+        const cost = upgrade.getCost ? upgrade.getCost() : upgrade.cost;
+        
+        // Check if player can afford it
+        if (game.money < cost) return;
+        
+        // Apply the upgrade
+        game.money -= cost;
+        
+        switch (upgradeId) {
+            case 'producer':
+                game.autoProducers++;
+                calculateAutoRate();
+                break;
+                
+            case 'autoSell':
+                game.hasAutoSell = true;
+                game.unlocks.autoSell = true;
+                break;
+                
+            case 'efficiency':
+                game.efficiencyLevel++;
+                calculateAutoRate();
+                break;
+                
+            case 'marketing':
+                game.marketingLevel++;
+                break;
+                
+            case 'factory':
+                game.factoryCount++;
+                calculateAutoRate();
+                break;
+                
+            case 'marketExpansion':
+                game.marketCount++;
+                calculateAutoRate();
+                break;
+                
+            case 'productLine':
+                game.productLines++;
+                calculateAutoRate();
+                break;
+                
+            case 'productTier':
+                const oldTier = game.productTier;
+                upgradeProductTier(); 
+                updateProductVisuals();
+                break;
+        }
+        
+        // Add message
+        addMessage(`Purchased ${upgrade.title}!`);
+        
+        // Update UI
+        updateUI();
+    }
+});
+</script>
 </body>
 </html>
